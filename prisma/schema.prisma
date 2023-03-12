@@ -1,0 +1,115 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Clients {
+    id       String @id @default(uuid())
+    username String @unique
+    name     String
+    password String
+
+    Address           CustomerAddress? @relation(fields: [customerAddressId], references: [id])
+    customerAddressId String?
+    Order             Order[]
+
+    @@map("clients")
+}
+
+model CustomerAddress {
+    id           String    @id @default(uuid())
+    street       String?
+    neighborhood String?
+    number       String?
+    city         String?
+    reference    String?
+    Clients      Clients[]
+
+    @@map("customerAddress")
+}
+
+model Order {
+    id                 String @id @default(uuid())
+    status             String
+    totalDiscountValue Float?
+    totalSalesValue    Float?
+
+    Client    Clients @relation(fields: [clientsId], references: [id])
+    clientsId String
+
+    Affililiate Affililiate @relation(fields: [affiliateId], references: [id])
+    affiliateId String
+
+    itemOrdered itemOrdered[]
+
+    @@map("order")
+}
+
+model itemOrdered {
+    id            String @id @default(uuid())
+    amount        Float
+    saleValue     Float
+    discountValue Float
+
+    Order   Order  @relation(fields: [orderId], references: [id])
+    orderId String
+
+    Product   Product @relation(fields: [productId], references: [id])
+    productId String
+
+    @@map("itemOrder")
+}
+
+model Product {
+    id          String  @id @default(uuid())
+    name        String
+    description String
+    imagem      String?
+
+    Category    Category[]
+    stock       Stock[]
+    itemOrdered itemOrdered[]
+
+    @@map("product")
+}
+
+model Category {
+    id          String @id @default(uuid())
+    name        String @unique
+    description String
+
+    Product   Product? @relation(fields: [productId], references: [id])
+    productId String?
+
+    @@map("category")
+}
+
+model Affililiate {
+    id           String  @id @default(uuid())
+    code         String
+    name         String
+    headquarters Boolean @default(false)
+    stock        Stock[]
+    Order        Order[]
+
+    @@map("affililiate")
+}
+
+model Stock {
+    id        String @id @default(uuid())
+    amount    Float
+    cost      Float?
+    saleValue Float?
+
+    Product   Product @relation(fields: [productId], references: [id])
+    productId String
+
+    Affililiate   Affililiate @relation(fields: [affililiateId], references: [id])
+    affililiateId String
+
+    @@map("stock")
+}
