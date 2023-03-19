@@ -1,22 +1,16 @@
 import { Request, Response } from "express";
+import { IClientsRepository } from "modules/clients/repositories/IClientsRepository";
+import { container } from "tsyringe";
 import { CreateClientsCaseUse } from "./createClientsCaseUse";
 
 class CreateClientsController {
     async handle(request: Request, response: Response) {
-        const { name } = request.body;
-        const { username } = request.body;
-        const { password } = request.body;
-
-        const createClientsCaseUse = new CreateClientsCaseUse();
-        const result = await createClientsCaseUse.execute({
-            name,
-            username,
-            password
-        });
+        const { name, username, password, telephone } = request.body;
+        const createClientsCaseUse = container.resolve(CreateClientsCaseUse)
+        const result = await createClientsCaseUse.execute({ name, username, password, telephone });
 
         return response.json(result);
     }
-
 }
 
 export { CreateClientsController }

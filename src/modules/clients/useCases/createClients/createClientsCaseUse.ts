@@ -1,32 +1,27 @@
-import { prisma } from "../../../../../database/prismaClient";
+// import { prisma } from "../../../../../database/prismaClient";
+import { inject, injectable } from "tsyringe";
+import { Clients } from "modules/clients/entities/Clients";
+import { IClientsRepository } from "modules/clients/repositories/IClientsRepository";
 import { AppError } from "../../../../errors/AppError";
 
-interface ICreateClients {
+interface IRequest {
     name: string;
     username: string;
     password: string;
+    telephone: string;
 }
 
+@injectable()
 class CreateClientsCaseUse {
-    async execute({ name, username, password }: ICreateClients) {
-        const clientAlreadyExists = await prisma.clients.findFirst({
-            where: {
-                username: {
-                    mode: "insensitive"
-                }
-            }
-        })
+    constructor(
+        @inject('ClientsRepository')
+        private clientsRepository: IClientsRepository
+    ) {
+    }
 
-        if (clientAlreadyExists)
-            throw new Error('Cliente já cadastrado');
+    async execute({ name, username, password, telephone }: IRequest): Promise<Clients> {
 
-        const client = await prisma.clients.create({
-            data: {
-                name,
-                username,
-                password
-            }
-        });
+        const client = await this.clientsRepository.create({ name, username, password, telephone })
 
         return client;
     }

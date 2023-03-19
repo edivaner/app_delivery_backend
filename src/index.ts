@@ -1,7 +1,9 @@
 import express, { response } from 'express';
+import "reflect-metadata";
 import cors from 'cors';
 import { router } from './routes';
 import "express-async-errors";
+
 import { AppError } from './errors/AppError';
 
 const app = express();
